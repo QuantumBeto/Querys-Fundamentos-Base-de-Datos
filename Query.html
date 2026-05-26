@@ -1,0 +1,1388 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guión SQL – HalconMusic</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
+
+  :root {
+    --bg: #0d0d14;
+    --surface: #161623;
+    --border: #252540;
+    --accent: #7c6af7;
+    --accent2: #f7a06a;
+    --accent3: #6af7c8;
+    --accent4: #f76a8f;
+    --text: #e8e8f0;
+    --muted: #888899;
+    --code-bg: #0a0a12;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Space Grotesk', sans-serif;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  header {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 2rem 2.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+  }
+
+  header .logo {
+    font-size: 2rem;
+  }
+
+  header h1 {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #fff;
+  }
+
+  header p {
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin-top: 0.2rem;
+  }
+
+  .badge {
+    display: inline-block;
+    padding: 0.15rem 0.6rem;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .badge-oracle { background: #c74634; color: #fff; }
+  .badge-java { background: #f89820; color: #1a1a1a; }
+
+  .layout {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    min-height: calc(100vh - 100px);
+  }
+
+  nav {
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 1.5rem 0;
+    position: sticky;
+    top: 0;
+    height: calc(100vh - 100px);
+    overflow-y: auto;
+  }
+
+  nav .nav-group {
+    margin-bottom: 0.5rem;
+  }
+
+  nav .nav-label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 0.6rem 1.5rem 0.3rem;
+  }
+
+  nav a {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.45rem 1.5rem;
+    font-size: 0.85rem;
+    color: var(--muted);
+    text-decoration: none;
+    transition: all 0.15s;
+    border-left: 3px solid transparent;
+  }
+
+  nav a:hover {
+    color: var(--text);
+    background: rgba(124,106,247,0.08);
+    border-left-color: var(--accent);
+  }
+
+  nav a .dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  main {
+    padding: 2rem 2.5rem;
+    max-width: 900px;
+  }
+
+  .section {
+    margin-bottom: 3rem;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.8rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+  }
+
+  .section-header h2 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #fff;
+  }
+
+  .section-header .dao-tag {
+    font-size: 0.72rem;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    padding: 0.1rem 0.5rem;
+    border-radius: 4px;
+  }
+
+  .query-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 1.2rem;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+
+  .query-card:hover {
+    border-color: var(--accent);
+  }
+
+  .query-header {
+    padding: 0.9rem 1.2rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.8rem;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .query-header:hover {
+    background: rgba(255,255,255,0.02);
+  }
+
+  .q-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--accent);
+    background: rgba(124,106,247,0.15);
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+  }
+
+  .query-title {
+    flex: 1;
+  }
+
+  .query-title strong {
+    font-size: 0.95rem;
+    color: var(--text);
+    display: block;
+    margin-bottom: 0.2rem;
+  }
+
+  .query-title span {
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+
+  .chevron {
+    color: var(--muted);
+    transition: transform 0.2s;
+    flex-shrink: 0;
+    margin-top: 0.15rem;
+  }
+
+  .query-card.open .chevron {
+    transform: rotate(90deg);
+  }
+
+  .query-body {
+    display: none;
+    border-top: 1px solid var(--border);
+  }
+
+  .query-card.open .query-body {
+    display: block;
+  }
+
+  .explain-block {
+    padding: 1rem 1.2rem;
+    background: rgba(0,0,0,0.2);
+  }
+
+  .explain-block p {
+    font-size: 0.88rem;
+    color: #c8c8d8;
+    margin-bottom: 0.5rem;
+    line-height: 1.7;
+  }
+
+  .explain-block p:last-child {
+    margin-bottom: 0;
+  }
+
+  .explain-block .highlight {
+    color: var(--accent2);
+    font-weight: 600;
+  }
+
+  .explain-block .kw {
+    color: var(--accent3);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+    background: rgba(106,247,200,0.08);
+    padding: 0.05rem 0.3rem;
+    border-radius: 3px;
+  }
+
+  pre {
+    background: var(--code-bg);
+    border-top: 1px solid var(--border);
+    padding: 1.1rem 1.3rem;
+    overflow-x: auto;
+    margin: 0;
+  }
+
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    line-height: 1.8;
+    color: #c8c8ff;
+  }
+
+  .kw-sql { color: #569cd6; font-weight: 600; }
+  .fn-sql { color: #dcdcaa; }
+  .str-sql { color: #ce9178; }
+  .cmt-sql { color: #6a9955; font-style: italic; }
+  .tbl-sql { color: #4ec9b0; }
+  .param-sql { color: #f7a06a; font-weight: 600; }
+
+  .tags {
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+    padding: 0.7rem 1.2rem;
+    background: rgba(0,0,0,0.1);
+    border-top: 1px solid var(--border);
+  }
+
+  .tag {
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    text-transform: uppercase;
+  }
+
+  .tag-insert { background: rgba(106,247,200,0.12); color: var(--accent3); border: 1px solid rgba(106,247,200,0.25); }
+  .tag-select { background: rgba(124,106,247,0.12); color: var(--accent); border: 1px solid rgba(124,106,247,0.25); }
+  .tag-blob { background: rgba(247,160,106,0.12); color: var(--accent2); border: 1px solid rgba(247,160,106,0.25); }
+  .tag-join { background: rgba(247,106,143,0.12); color: var(--accent4); border: 1px solid rgba(247,106,143,0.25); }
+  .tag-aggregate { background: rgba(200,106,247,0.12); color: #c86af7; border: 1px solid rgba(200,106,247,0.25); }
+  .tag-window { background: rgba(247,200,106,0.12); color: #f7c86a; border: 1px solid rgba(247,200,106,0.25); }
+  .tag-subquery { background: rgba(106,160,247,0.12); color: #6aa0f7; border: 1px solid rgba(106,160,247,0.25); }
+
+  .tip-box {
+    background: rgba(124,106,247,0.08);
+    border: 1px solid rgba(124,106,247,0.2);
+    border-radius: 8px;
+    padding: 0.9rem 1.1rem;
+    margin: 0 1.2rem 1rem;
+    font-size: 0.83rem;
+    color: #b8b0f0;
+  }
+
+  .tip-box strong { color: var(--accent); }
+
+  .flow-diagram {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem 1.2rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    color: #999;
+    margin: 0 1.2rem 1rem;
+    line-height: 2;
+  }
+
+  .flow-diagram .arrow { color: var(--accent); }
+  .flow-diagram .box { color: var(--accent3); }
+  .flow-diagram .label { color: var(--accent2); }
+
+  @media (max-width: 768px) {
+    .layout { grid-template-columns: 1fr; }
+    nav { display: none; }
+    main { padding: 1.2rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <span class="logo">🦅</span>
+  <div>
+    <h1>HalconMusic — Guión SQL</h1>
+    <p>Referencia completa de todos los queries del proyecto &nbsp;
+      <span class="badge badge-oracle">Oracle DB</span>&nbsp;
+      <span class="badge badge-java">Java / JDBC</span>
+    </p>
+  </div>
+</header>
+
+<div class="layout">
+
+<nav>
+  <div class="nav-group">
+    <div class="nav-label">Acceso</div>
+    <a href="#sec-usuario"><span class="dot" style="background:#6af7c8"></span>UsuarioDAO — Login</a>
+  </div>
+  <div class="nav-group">
+    <div class="nav-label">Entidades (CRUD)</div>
+    <a href="#sec-artista"><span class="dot" style="background:#7c6af7"></span>ArtistaDAO</a>
+    <a href="#sec-album"><span class="dot" style="background:#f76a8f"></span>AlbumDAO</a>
+    <a href="#sec-cancion"><span class="dot" style="background:#f7a06a"></span>CancionDAO</a>
+    <a href="#sec-playlist"><span class="dot" style="background:#6aa0f7"></span>Playlists</a>
+  </div>
+  <div class="nav-group">
+    <div class="nav-label">Interacción</div>
+    <a href="#sec-historial"><span class="dot" style="background:#f7c86a"></span>HistorialDAO</a>
+    <a href="#sec-megusta"><span class="dot" style="background:#f76a8f"></span>Me Gusta</a>
+  </div>
+  <div class="nav-group">
+    <div class="nav-label">Reportes</div>
+    <a href="#sec-resumen"><span class="dot" style="background:#c86af7"></span>ResumenDAO</a>
+    <a href="#sec-global"><span class="dot" style="background:#6af7c8"></span>Resumen Global</a>
+  </div>
+</nav>
+
+<main>
+
+<!-- ═══════════════════════════════ USUARIO ═══════════════════════════════ -->
+<div class="section" id="sec-usuario">
+  <div class="section-header">
+    <div class="section-icon" style="background:rgba(106,247,200,0.15)">🔑</div>
+    <div>
+      <h2>UsuarioDAO — Autenticación</h2>
+      <span class="dao-tag">UsuarioDAO.java</span>
+    </div>
+  </div>
+
+  <div class="query-card open">
+    <div class="query-header" onclick="toggle(this)">
+      <span class="q-num">Q-01</span>
+      <div class="query-title">
+        <strong>autenticar(idUsuario, contrasena)</strong>
+        <span>Valida credenciales y retorna datos del usuario logueado</span>
+      </div>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="query-body">
+      <div class="explain-block">
+        <p>Este query busca en la tabla <span class="highlight">USUARIOS</span> un registro cuyo <code>ID_USUARIO</code> y <code>CONTRASENA</code> coincidan con lo ingresado en el login. Usamos <span class="kw">UPPER()</span> en el ID para que el login sea insensible a mayúsculas/minúsculas.</p>
+        <p>Si encuentra un registro, retorna un arreglo con: ID, NOMBRE, tipo de display ("Artista"/"Oyente") y el tipo raw ("Premium"/"Gratis"), que se usa en la lógica del Sidebar para mostrar u ocultar opciones de creación.</p>
+      </div>
+      <pre><code><span class="kw-sql">SELECT</span> ID_USUARIO, NOMBRE, TIPODEUSUARIO
+<span class="kw-sql">FROM</span>   <span class="tbl-sql">USUARIOS</span>
+<span class="kw-sql">WHERE</span>  <span class="fn-sql">UPPER</span>(ID_USUARIO) = <span class="fn-sql">UPPER</span>(<span class="param-sql">?</span>)   <span class="cmt-sql">-- insensible a mayúsculas</span>
+  <span class="kw-sql">AND</span>  CONTRASENA       = <span class="param-sql">?</span>           <span class="cmt-sql">-- contraseña exacta</span></code></pre>
+      <div class="tags">
+        <span class="tag tag-select">SELECT</span>
+        <span class="tag tag-join">WHERE</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ ARTISTA ═══════════════════════════════ -->
+<div class="section" id="sec-artista">
+  <div class="section-header">
+    <div class="section-icon" style="background:rgba(124,106,247,0.15)">🎤</div>
+    <div>
+      <h2>ArtistaDAO</h2>
+      <span class="dao-tag">ArtistaDAO.java</span>
+    </div>
+  </div>
+
+  <div class="query-card">
+    <div class="query-header" onclick="toggle(this)">
+      <span class="q-num">Q-02</span>
+      <div class="query-title">
+        <strong>generarNuevoId()</strong>
+        <span>Genera el siguiente ID secuencial (ART001, ART002…)</span>
+      </div>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="query-body">
+      <div class="explain-block">
+        <p>Para no depender de una secuencia de Oracle, calculamos el próximo ID de forma manual. <span class="kw">SUBSTR(ID_ARTISTA, 4)</span> extrae los dígitos del ID (ej. "001" de "ART001"), <span class="kw">TO_NUMBER</span> los convierte a entero, <span class="kw">MAX</span> toma el mayor, y <span class="kw">NVL(..., 0)</span> maneja el caso de tabla vacía. En Java se formatea como <code>String.format("ART%03d", ...)</code>.</p>
+      </div>
+      <pre><code><span class="kw-sql">SELECT</span> <span class="fn-sql">NVL</span>(<span class="fn-sql">MAX</span>(<span class="fn-sql">TO_NUMBER</span>(<span class="fn-sql">SUBSTR</span>(ID_ARTISTA, 4))), 0) + 1
+       <span class="kw-sql">AS</span> NEXT_ID
+<span class="kw-sql">FROM</span> <span class="tbl-sql">ARTISTAS</span></code></pre>
+      <div class="tags">
+        <span class="tag tag-select">SELECT</span>
+        <span class="tag tag-aggregate">MAX / NVL</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="query-card">
+    <div class="query-header" onclick="toggle(this)">
+      <span class="q-num">Q-03</span>
+      <div class="query-title">
+        <strong>insertar(nombre, descripcion, generoPrincipal, paisDeOrigen)</strong>
+        <span>Crea un nuevo artista en la base de datos</span>
+      </div>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="query-body">
+      <div class="explain-block">
+        <p>Inserta una fila en <span class="highlight">ARTISTAS</span> con los 5 campos requeridos. El ID fue generado por Q-02. Todos los parámetros usan <span class="kw">?</span> (PreparedStatement) para evitar inyección SQL.</p>
+      </div>
+      <pre><code><span class="kw-sql">INSERT INTO</span> <span class="tbl-sql">ARTISTAS</span>
+  (ID_ARTISTA, NOMBRE, DESCRIPCION, GENEROPRINCIPAL, PAISDEORIGEN)
+<span class="kw-sql">VALUES</span>
+  (<span class="param-sql">?</span>, <span class="param-sql">?</span>, <span class="param-sql">?</span>, <span class="param-sql">?</span>, <span class="param-sql">?</span>)</code></pre>
+      <div class="tags">
+        <span class="tag tag-insert">INSERT</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="query-card">
+    <div class="query-header" onclick="toggle(this)">
+      <span class="q-num">Q-04</span>
+      <div class="query-title">
+        <strong>obtenerTodos()</strong>
+        <span>Lista todos los artistas con su conteo de canciones</span>
+      </div>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="query-body">
+      <div class="explain-block">
+        <p>Hace un <span class="kw">LEFT JOIN</span> con la tabla intermedia <span class="highlight">ARTISTAS_CANCIONES</span> para contar cuántas canciones tiene cada artista. Se usa <span class="kw">LEFT JOIN</span> (no INNER) para que los artistas sin canciones también aparezcan. El <span class="kw">GROUP BY</span> agrupa por todos los campos no-agregados del artista.</p>
+      </div>
+      <pre><code><span class="kw-sql">SELECT</span> A.ID_ARTISTA, A.NOMBRE, A.DESCRIPCION,
+       A.GENEROPRINCIPAL, A.PAISDEORIGEN,
+       <span class="fn-sql">COUNT</span>(AC.ID_CANCION) <span class="kw-sql">AS</span> TOTAL_CANCIONES
+<span class="kw-sql">FROM</span>      <span class="tbl-sql">ARTISTAS</span> A
+<span class="kw-sql">LEFT JOIN</span> <span class="tbl-sql">ARTISTAS_CANCIONES</span> AC <span class="kw-sql">ON</span> A.ID_ARTISTA = AC.ID_ARTISTA
+<span class="kw-sql">GROUP BY</span>  A.ID_ARTISTA, A.NOMBRE, A.DESCRIPCION,
+          A.GENEROPRINCIPAL, A.PAISDEORIGEN
+<span class="kw-sql">ORDER BY</span>  <span class="fn-sql">UPPER</span>(A.NOMBRE)</code></pre>
+      <div class="tags">
+        <span class="tag tag-select">SELECT</span>
+        <span class="tag tag-join">LEFT JOIN</span>
+        <span class="tag tag-aggregate">GROUP BY / COUNT</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="query-card">
+    <div class="query-header" onclick="toggle(this)">
+      <span class="q-num">Q-05</span>
+      <div class="query-title">
+        <strong>buscarPorNombre(termino)</strong>
+        <span>Búsqueda flexible de artistas por nombre</span>
+      </div>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="query-body">
+      <div class="explain-block">
+        <p>El patrón <span class="kw">LIKE UPPER(?)</span> con el valor <code>%termino%</code> permite buscar aunque el usuario escriba en minúsculas o con cualquier capitalización. Es la misma lógica del Q-04 pero con un <span class="kw">WHERE</span> adicional.</p>
+      </div>
+      <pre><code><span class="kw-sql">WHERE</span> <span class="fn-sql">UPPER</span>(A.NOMBRE) <span class="kw-sql">LIKE</span> <span class="fn-sql">UPPER</span>(<span class="param-sql">?</span>)
+<span class="cmt-sql">-- el parámetro se envía como '%' + termino + '%'</span></code></pre>
+      <div class="tags">
+        <span class="tag tag-select">SELECT</span>
+        <span class="tag tag-join">LIKE / UPPER</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="query-card">
+    <div class="query-header" onclick="toggle(this)">
+      <span class="q-num">Q-06</span>
+      <div class="query-title">
+        <strong>contarGenerosDistintos() / contarPaisesDistintos()</strong>
+        <span>Métricas de diversidad para el panel de estadísticas</span>
+      </div>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="query-body">
+      <div class="explain-block">
+        <p>Combina <span class="kw">COUNT</span> con <span class="kw">DISTINCT</span> para contar cuántos géneros o países únicos existen entre todos los artistas. <span class="kw">UPPER()</span> normaliza para que "Rock" y "rock" cuenten como uno solo.</p>
+      </div>
+      <pre><code><span class="cmt-sql">-- Géneros distintos:</span>
+<span class="kw-sql">SELECT</span> <span class="fn-sql">COUNT</span>(<span class="kw-sql">DISTINCT</span> <span class="fn-sql">UPPER</span>(GENEROPRINCIPAL)) <span class="kw-sql">FROM</span> <span class="tbl-sql">ARTISTAS</span>
+
+<span class="cmt-sql">-- Países distintos:</span>
+<span class="kw-sql">SELECT</span> <span class="fn-sql">COUNT</span>(<span class="kw-sql">DISTINCT</span> <span class="fn-sql">UPPER</span>(PAISDEORIGEN))    <span class="kw-sql">FROM</span> <span class="tbl-sql">ARTISTAS</span></code></pre>
+      <div class="tags">
+        <span class="tag tag-select">SELECT</span>
+        <span class="tag tag-aggregate">COUNT DISTINCT</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ ALBUM ═══════════════════════════════ -->
+<div class="section" id="sec-album">
+  <div class="section-header">
+    <div class="section-icon" style="background:rgba(247,106,143,0.15)">💿</div>
+    <div>
+      <h2>AlbumDAO</h2>
+      <span class="dao-tag">AlbumDAO.java</span>
+    </div>
+  </div>
+
+  <div class="query-card">
+    <div class="query-header" onclick="toggle(this)">
+      <span class="q-num">Q-07</span>
+      <div class="query-title">
+        <strong>insertar(…) — Crear álbum</strong>
+        <span>Inserta un nuevo álbum con EMPTY_BLOB() para la portada</span>
+      </div>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="query-body">
+      <div class="explain-block">
+        <p>El campo <span class="highlight">PORTADA</span> es un <span class="kw">BLOB</span> de Oracle. La estrategia de dos pasos es obligatoria en Oracle JDBC antiguo: primero se inserta con <span class="kw">EMPTY_BLOB()</span> (un localizador vacío) y luego se escribe el contenido binario. Aquí solo se hace el primer paso; la portada se llena desde otro flujo.</p>
+        <p>El ID se genera con el mismo patrón NVL+MAX que Q-02, produciendo <code>ALB001</code>, <code>ALB002</code>, etc.</p>
+      </div>
+      <pre><code><span class="kw-sql">INSERT INTO</span> <span class="tbl-sql">ALBUMES</span>
+  (ID_ALBUM, TITULO, PORTADA, NUMERODECANCIONES,
+   GENERO, FECHA, DURACION_SEG, COMPOSITORES, ID_ARTISTA)
+<span class="kw-sql">VALUES</span>
+  (<span class="param-sql">?</span>, <span class="param-sql">?</span>, <span class="fn-sql">EMPTY_BLOB()</span>, <span class="param-sql">?</span>, <span class="param-sql">?</span>, <span class="param-sql">?</span>, <span class="param-sql">?</span>, <span class="param-sql">?</span>, <span class="param-sql">?</span>)</code></pre>
+      <div class="tags">
+        <span class="tag tag-insert">INSERT</span>
+        <span class="tag tag-blob">BLOB</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="query-card">
+    <div class="query-header" onclick="toggle(this)">
+      <span class="q-num">Q-08</span>
+      <div class="query-title">
+        <strong>obtenerTodos()</strong>
+        <span>Lista todos los álbumes con el nombre del artista</span>
+      </div>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="query-body">
+      <div class="explain-block">
+        <p>JOIN entre <span class="highlight">ALBUMES</span> y <span class="highlight">ARTISTAS</span> para mostrar el nombre del artista (que está en tabla separada). Se ordena por fecha descendente para mostrar lo más reciente primero.</p>
+      </div>
+      <pre><code><span class="kw-sql">SELECT</span> AL.ID_ALBUM, AL.TITULO, AL.PORTADA,
+       AL.NUMERODECANCIONES, AL.GENERO, AL.FECHA,
+       AL.DURACION_SEG, AL.COMPOSITORES, AL.ID_ARTISTA,
+       A.NOMBRE <span class="kw-sql">AS</span> NOMBRE_ARTISTA
+<span class="kw-sql">FROM</span>      <span class="tbl-sql">ALBUMES</span>   AL
+<span class="kw-sql">JOIN</span>      <span class="tbl-sql">ARTISTAS</span>  A  <span class="kw-sql">ON</span> AL.ID_ARTISTA = A.ID_ARTISTA
+<span class="kw-sql">ORDER BY</span> AL.FECHA <span class="kw-sql">DESC</span>, <span class="fn-sql">UPPER</span>(AL.TITULO)</code></pre>
+      <div class="tags">
+        <span class="tag tag-select">SELECT</span>
+        <span class="tag tag-join">JOIN</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="query-card">
+    <div class="query-header" onclick="toggle(this)">
+      <span class="q-num">Q-09</span>
+      <div class="query-title">
+        <strong>buscar(termino)</strong>
+        <span>Búsqueda de álbumes por título, artista o género</span>
+      </div>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="query-body">
+      <div class="explain-block">
+        <p>Mismo patrón LIKE que los artistas, pero aplicado a tres columnas con <span class="kw">OR</span>. El mismo parámetro <code>%termino%</code> se pasa tres veces al PreparedStatement (posiciones 1, 2 y 3).</p>
+      </div>
+      <pre><code><span class="kw-sql">WHERE</span> <span class="fn-sql">UPPER</span>(AL.TITULO) <span class="kw-sql">LIKE</span> <span class="fn-sql">UPPER</span>(<span class="param-sql">?</span>)
+   <span class="kw-sql">OR</span> <span class="fn-sql">UPPER</span>(A.NOMBRE)  <span class="kw-sql">LIKE</span> <span class="fn-sql">UPPER</span>(<span class="param-sql">?</span>)
+   <span class="kw-sql">OR</span> <span class="fn-sql">UPPER</span>(AL.GENERO) <span class="kw-sql">LIKE</span> <span class="fn-sql">UPPER</span>(<span class="param-sql">?</span>)</code></pre>
+      <div class="tags">
+        <span class="tag tag-select">SELECT</span>
+        <span class="tag tag-join">LIKE / OR</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="query-card">
+    <div class="query-header" onclick="toggle(this)">
+      <span class="q-num">Q-10</span>
+      <div class="query-title">
+        <strong>obtenerPorArtista(idArtista)</strong>
+        <span>Filtra álbumes de un artista específico</span>
+      </div>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="query-body">
+      <div class="explain-block">
+        <p>Igual que Q-08 pero con un <span class="kw">WHERE AL.ID_ARTISTA = ?</span>. Se usa al hacer clic en un artista para ver su discografía.</p>
+      </div>
+      <pre><code><span class="kw-sql">WHERE</span> AL.ID_ARTISTA = <span class="param-sql">?</span>
+<span class="kw-sql">ORDER BY</span> AL.FECHA <span class="kw-sql">DESC</span></code></pre>
+      <div class="tags">
+        <span class="tag tag-select">SELECT</span>
+        <span class="tag tag-join">JOIN / WHERE</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ CANCION ═══════════════════════════════ -->
+<div class="section" id="sec-cancion">
+  <div class="section-header">
+    <div class="section-icon" style="background:rgba(247,160,106,0.15)">🎵</div>
+    <div>
+      <h2>CancionDAO — Canciones</h2>
+      <span class="dao-tag">CancionDAO.java</span>
+    </div>
+  </div>
+
+  <div class="query-card open">
+    <div class="query-header" onclick="toggle(this)">
+      <span class="q-num">Q-11</span>
+      <div class="query-title">
+        <strong>insertar(…) — Paso 1: INSERT con EMPTY_BLOB()</strong>
+        <span>Crea la fila de la canción reservando espacio para los BLOBs</span>
+      </div>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="query-body">
+      <div class="explain-block">
+        <p>Oracle exige esta estrategia de dos pasos para escribir BLOBs grandes. Primero se inserta la fila con <span class="kw">EMPTY_BLOB()</span> en los campos <span class="highlight">PORTADA</span> y <span class="highlight">MUSICA</span>, lo que crea un localizador (puntero) vacío en la base de datos. En el paso 2 se abre ese localizador y se escribe el contenido real.</p>
+      </div>
+      <pre><code><span class="kw-sql">INSERT INTO</span> <span class="tbl-sql">CANCIONES</span>
+  (ID_CANCION, NOMBRE, GENERO, ARTISTA, PORTADA, MUSICA,
+   EMOCION, DURACION_SEG, FECHA, FT, LETRA)
+<span class="kw-sql">VALUES</span>
+  (<span class="param-sql">?</span>, <span class="param-sql">?</span>, <span class="param-sql">?</span>, <span class="param-sql">?</span>,
+   <span class="fn-sql">EMPTY_BLOB()</span>, <span class="fn-sql">EMPTY_BLOB()</span>,  <span class="cmt-sql">-- localizadores vacíos</span>
+   <span class="param-sql">?</span>, <span class="param-sql">?</span>, <span class="param-sql">?</span>, <span class="param-sql">?</span>, <span class="param-sql">?</span>)</code></pre>
+      <div class="tags">
+        <span class="tag tag-insert">INSERT</span>
+        <span class="tag tag-blob">EMPTY_BLOB()</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="query-card open">
+    <div class="query-header" onclick="toggle(this)">
+      <span class="q-num">Q-12</span>
+      <div class="query-title">
+        <strong>insertar(…) — Paso 2: Escritura de BLOBs con FOR UPDATE</strong>
+        <span>Bloquea la fila y escribe los archivos binarios</span>
+      </div>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="query-body">
+      <div class="explain-block">
+        <p>Se usa <span class="kw">SELECT ... FOR UPDATE</span> para obtener el localizador BLOB y bloquear la fila durante la escritura. <span class="kw">con.setAutoCommit(false)</span> abre una transacción explícita; si algo falla se ejecuta <span class="kw">con.rollback()</span>. Los bytes se escriben por bloques usando el <code>OutputStream</code> del localizador Oracle.</p>
+      </div>
+      <pre><code><span class="cmt-sql">-- Obtener el localizador y bloquear la fila:</span>
+<span class="kw-sql">SELECT</span> PORTADA, MUSICA
+<span class="kw-sql">FROM</span>   <span class="tbl-sql">CANCIONES</span>
+<span class="kw-sql">WHERE</span>  ID_CANCION = <span class="param-sql">?</span>
+<span class="kw-sql">FOR UPDATE</span>
+
+<span class="cmt-sql">-- En Java (pseudocódigo):</span>
+<span class="cmt-sql">-- oracle.sql.BLOB blob = rs.getBlob("PORTADA")</span>
+<span class="cmt-sql">-- OutputStream os = blob.getBinaryOutputStream()</span>
+<span class="cmt-sql">-- os.write(bufferDeArchivo)  →  con.commit()</span></code></pre>
+      <div class="tags">
+        <span class="tag tag-blob">FOR UPDATE</span>
+        <span class="tag tag-blob">BLOB / Transaction</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="query-card open">
+    <div class="query-header" onclick="toggle(this)">
+      <span class="q-num">Q-13</span>
+      <div class="query-title">
+        <strong>insertar(…) — Paso 3: Vincular canción a artista y álbum</strong>
+        <span>Inserta en las tablas de relación muchos-a-muchos</span>
+      </div>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="query-body">
+      <div class="explain-block">
+        <p>Una vez creada la canción, se registra la relación con el artista en <span class="highlight">ARTISTAS_CANCIONES</span>. Si se eligió un álbum, también se registra en <span class="highlight">ALBUMES_CANCIONES</span>. Estas tablas son las que permiten que una canción aparezca dentro de un álbum o en el catálogo de un artista.</p>
+        <p><strong>Respuesta a "¿Qué query usaste para insertar una canción dentro de un álbum?"</strong> — Este es el query exacto:</p>
+      </div>
+      <div class="tip-box">
+        <strong>💡 Pregunta clave de revisión:</strong> "¿Cómo vinculaste la canción al álbum?" → La canción se inserta en CANCIONES, y luego se registra la relación en la tabla puente <strong>ALBUMES_CANCIONES</strong> con el ID del álbum y el ID de la nueva canción.
+      </div>
+      <pre><code><span class="cmt-sql">-- Vincular artista ↔ canción:</span>
+<span class="kw-sql">INSERT INTO</span> <span class="tbl-sql">ARTISTAS_CANCIONES</span> (ID_ARTISTA, ID_CANCION)
+<span class="kw-sql">VALUES</span> (<span class="param-sql">?</span>, <span class="param-sql">?</span>)
+
+<span class="cmt-sql">-- Vincular álbum ↔ canción (solo si se eligió un álbum):</span>
+<span class="kw-sql">INSERT INTO</span> <span class="tbl-sql">ALBUMES_CANCIONES</span> (ID_ALBUM, ID_CANCION)
+<span class="kw-sql">VALUES</span> (<span class="param-sql">?</span>, <span class="param-sql">?</span>)</code></pre>
+      <div class="tags">
+        <span class="tag tag-insert">INSERT</span>
+        <span class="tag tag-join">Tabla puente</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="query-card">
+    <div class="query-header" onclick="toggle(this)">
+      <span class="q-num">Q-14</span>
+      <div class="query-title">
+        <strong>obtenerTodas()</strong>
+        <span>Trae todas las canciones con su artista (triple JOIN)</span>
+      </div>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="query-body">
+      <div class="explain-block">
+        <p>Se necesitan tres tablas porque la relación artista-canción es muchos-a-muchos: <span class="highlight">CANCIONES</span> → <span class="highlight">ARTISTAS_CANCIONES</span> → <span class="highlight">ARTISTAS</span>. El nombre del artista vive en ARTISTAS, no en CANCIONES.</p>
+      </div>
+      <pre><code><span class="kw-sql">SELECT</span> C.ID_CANCION, C.NOMBRE, C.GENERO,
+       A.NOMBRE <span class="kw-sql">AS</span> ARTISTA, C.FT, C.PORTADA,
+       C.EMOCION, C.DURACION_SEG, C.FECHA
+<span class="kw-sql">FROM</span>  <span class="tbl-sql">CANCIONES</span>          C
+<span class="kw-sql">JOIN</span>  <span class="tbl-sql">ARTISTAS_CANCIONES</span> AC <span class="kw-sql">ON</span> C.ID_CANCION  = AC.ID_CANCION
+<span class="kw-sql">JOIN</span>  <span class="tbl-sql">ARTISTAS</span>           A  <span class="kw-sql">ON</span> AC.ID_ARTISTA = A.ID_ARTISTA
+<span class="kw-sql">ORDER BY</span> <span class="fn-sql">UPPER</span>(C.NOMBRE)</code></pre>
+      <div class="tags">
+        <span class="tag tag-select">SELECT</span>
+        <span class="tag tag-join">JOIN ×3</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="query-card">
+    <div class="query-header" onclick="toggle(this)">
+      <span class="q-num">Q-15</span>
+      <div class="query-title">
+        <strong>buscar(termino)</strong>
+        <span>Búsqueda por nombre, artista, género o emoción</span>
+      </div>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="query-body">
+      <div class="explain-block">
+        <p>Permite buscar en cuatro dimensiones simultáneamente. El mismo <code>%termino%</code> se pasa 4 veces al PreparedStatement. Útil para que el usuario encuentre canciones "tristes" o de "pop" sin saber el nombre exacto.</p>
+      </div>
+      <pre><code><span class="kw-sql">WHERE</span> <span class="fn-sql">UPPER</span>(C.NOMBRE)  <span class="kw-sql">LIKE</span> <span class="fn-sql">UPPER</span>(<span class="param-sql">?</span>)
+   <span class="kw-sql">OR</span> <span class="fn-sql">UPPER</span>(A.NOMBRE)  <span class="kw-sql">LIKE</span> <span class="fn-sql">UPPER</span>(<span class="param-sql">?</span>)
+   <span class="kw-sql">OR</span> <span class="fn-sql">UPPER</span>(C.GENERO)  <span class="kw-sql">LIKE</span> <span class="fn-sql">UPPER</span>(<span class="param-sql">?</span>)
+   <span class="kw-sql">OR</span> <span class="fn-sql">UPPER</span>(C.EMOCION) <span class="kw-sql">LIKE</span> <span class="fn-sql">UPPER</span>(<span class="param-sql">?</span>)</code></pre>
+      <div class="tags">
+        <span class="tag tag-select">SELECT</span>
+        <span class="tag tag-join">LIKE × 4</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="query-card">
+    <div class="query-header" onclick="toggle(this)">
+      <span class="q-num">Q-16</span>
+      <div class="query-title">
+        <strong>obtenerPorAlbum(idAlbum)</strong>
+        <span>Obtiene las canciones de un álbum específico</span>
+      </div>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="query-body">
+      <div class="explain-block">
+        <p>Usa cuatro JOINs: la tabla puente <span class="highlight">ALBUMES_CANCIONES</span> filtra por álbum, y luego se une a ARTISTAS_CANCIONES y ARTISTAS para obtener el nombre. Se ordena por FECHA para que las canciones aparezcan en orden cronológico.</p>
+      </div>
+      <pre><code><span class="kw-sql">FROM</span>  <span class="tbl-sql">CANCIONES</span>          C
+<span class="kw-sql">JOIN</span>  <span class="tbl-sql">ALBUMES_CANCIONES</span>  AL <span class="kw-sql">ON</span> C.ID_CANCION  = AL.ID_CANCION
+<span class="kw-sql">JOIN</span>  <span class="tbl-sql">ARTISTAS_CANCIONES</span> AC <span class="kw-sql">ON</span> C.ID_CANCION  = AC.ID_CANCION
+<span class="kw-sql">JOIN</span>  <span class="tbl-sql">ARTISTAS</span>           A  <span class="kw-sql">ON</span> AC.ID_ARTISTA = A.ID_ARTISTA
+<span class="kw-sql">WHERE</span> AL.ID_ALBUM = <span class="param-sql">?</span>
+<span class="kw-sql">ORDER BY</span> C.FECHA, <span class="fn-sql">UPPER</span>(C.NOMBRE)</code></pre>
+      <div class="tags">
+        <span class="tag tag-select">SELECT</span>
+        <span class="tag tag-join">JOIN ×4</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="query-card">
+    <div class="query-header" onclick="toggle(this)">
+      <span class="q-num">Q-17</span>
+      <div class="query-title">
+        <strong>obtenerHistorialUsuario(idUsuario)</strong>
+        <span>Historial deduplicado con funciones de ventana</span>
+      </div>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="query-body">
+      <div class="explain-block">
+        <p>Este es el query más avanzado del proyecto. Usa dos <span class="kw">funciones de ventana</span> de Oracle:</p>
+        <p>• <span class="highlight">MAX(...) OVER (PARTITION BY C.ID_CANCION)</span>: calcula la última vez que se escuchó cada canción, sin perder las otras filas.</p>
+        <p>• <span class="highlight">ROW_NUMBER() OVER (PARTITION BY C.ID_CANCION ORDER BY HC.FECHA_REPRODUCCION DESC)</span>: numera las reproducciones de cada canción de más reciente a más antigua.</p>
+        <p>La subconsulta exterior filtra solo <code>WHERE RN = 1</code>, quedándonos con la reproducción más reciente de cada canción sin duplicados. Luego ordena por <code>ULTIMA_VEZ DESC</code>.</p>
+      </div>
+      <pre><code><span class="kw-sql">SELECT</span> * <span class="kw-sql">FROM</span> (
+  <span class="kw-sql">SELECT</span> C.ID_CANCION, C.NOMBRE, C.GENERO,
+         A.NOMBRE <span class="kw-sql">AS</span> ARTISTA, C.FT, C.PORTADA,
+         C.EMOCION, C.DURACION_SEG, C.FECHA,
+         <span class="fn-sql">MAX</span>(HC.FECHA_REPRODUCCION)
+           <span class="kw-sql">OVER</span> (<span class="kw-sql">PARTITION BY</span> C.ID_CANCION)    <span class="kw-sql">AS</span> ULTIMA_VEZ,
+         <span class="fn-sql">ROW_NUMBER</span>()
+           <span class="kw-sql">OVER</span> (<span class="kw-sql">PARTITION BY</span> C.ID_CANCION
+                 <span class="kw-sql">ORDER BY</span> HC.FECHA_REPRODUCCION <span class="kw-sql">DESC</span>) <span class="kw-sql">AS</span> RN
+  <span class="kw-sql">FROM</span>  <span class="tbl-sql">CANCIONES</span>          C
+  <span class="kw-sql">JOIN</span>  <span class="tbl-sql">HISTORIAL_CANCIONES</span> HC <span class="kw-sql">ON</span> C.ID_CANCION   = HC.ID_CANCION
+  <span class="kw-sql">JOIN</span>  <span class="tbl-sql">HISTORIAL</span>           H  <span class="kw-sql">ON</span> HC.ID_HISTORIAL = H.ID_HISTORIAL
+  <span class="kw-sql">JOIN</span>  <span class="tbl-sql">ARTISTAS_CANCIONES</span>  AC <span class="kw-sql">ON</span> C.ID_CANCION   = AC.ID_CANCION
+  <span class="kw-sql">JOIN</span>  <span class="tbl-sql">ARTISTAS</span>            A  <span class="kw-sql">ON</span> AC.ID_ARTISTA  = A.ID_ARTISTA
+  <span class="kw-sql">WHERE</span> H.ID_USUARIO = <span class="param-sql">?</span>
+)
+<span class="kw-sql">WHERE</span> RN = 1
+<span class="kw-sql">ORDER BY</span> ULTIMA_VEZ <span class="kw-sql">DESC</span></code></pre>
+      <div class="tags">
+        <span class="tag tag-window">Window Functions</span>
+        <span class="tag tag-subquery">Subquery</span>
+        <span class="tag tag-join">JOIN ×5</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="query-card">
+    <div class="query-header" onclick="toggle(this)">
+      <span class="q-num">Q-18</span>
+      <div class="query-title">
+        <strong>obtenerMeGustasUsuario(idUsuario)</strong>
+        <span>Canciones que el usuario marcó como favoritas</span>
+      </div>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="query-body">
+      <div class="explain-block">
+        <p>Recorre la cadena: <span class="highlight">CANCIONES</span> → <span class="highlight">MEGUSTAS_CANCIONES</span> → <span class="highlight">MEGUSTAS</span> filtrando por ID_USUARIO, más los JOINs de artista.</p>
+      </div>
+      <pre><code><span class="kw-sql">FROM</span>  <span class="tbl-sql">CANCIONES</span>          C
+<span class="kw-sql">JOIN</span>  <span class="tbl-sql">MEGUSTAS_CANCIONES</span> MC <span class="kw-sql">ON</span> C.ID_CANCION   = MC.ID_CANCION
+<span class="kw-sql">JOIN</span>  <span class="tbl-sql">MEGUSTAS</span>           M  <span class="kw-sql">ON</span> MC.ID_MEGUSTAS  = M.ID_MEGUSTAS
+<span class="kw-sql">JOIN</span>  <span class="tbl-sql">ARTISTAS_CANCIONES</span> AC <span class="kw-sql">ON</span> C.ID_CANCION   = AC.ID_CANCION
+<span class="kw-sql">JOIN</span>  <span class="tbl-sql">ARTISTAS</span>           A  <span class="kw-sql">ON</span> AC.ID_ARTISTA  = A.ID_ARTISTA
+<span class="kw-sql">WHERE</span> M.ID_USUARIO = <span class="param-sql">?</span></code></pre>
+      <div class="tags">
+        <span class="tag tag-select">SELECT</span>
+        <span class="tag tag-join">JOIN ×5</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="query-card">
+    <div class="query-header" onclick="toggle(this)">
+      <span class="q-num">Q-19</span>
+      <div class="query-title">
+        <strong>contarPorGenero()</strong>
+        <span>Estadísticas de distribución por género musical</span>
+      </div>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="query-body">
+      <div class="explain-block">
+        <p>Agrupa todas las canciones por su género y cuenta cuántas hay en cada uno. Usado en el HomePanel para mostrar métricas.</p>
+      </div>
+      <pre><code><span class="kw-sql">SELECT</span> GENERO, <span class="fn-sql">COUNT</span>(*) <span class="kw-sql">AS</span> TOTAL
+<span class="kw-sql">FROM</span>   <span class="tbl-sql">CANCIONES</span>
+<span class="kw-sql">GROUP BY</span> GENERO
+<span class="kw-sql">ORDER BY</span> TOTAL <span class="kw-sql">DESC</span></code></pre>
+      <div class="tags">
+        <span class="tag tag-select">SELECT</span>
+        <span class="tag tag-aggregate">GROUP BY / COUNT</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="query-card">
+    <div class="query-header" onclick="toggle(this)">
+      <span class="q-num">Q-20</span>
+      <div class="query-title">
+        <strong>obtenerLetra(idCancion) / obtenerVideo(idCancion)</strong>
+        <span>Recupera CLOB (texto) y BLOB (video) de una canción</span>
+      </div>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="query-body">
+      <div class="explain-block">
+        <p>La letra se almacena como <span class="kw">CLOB</span> (Character Large Object). Se recupera con <code>rs.getClob("LETRA")</code> y luego <code>clob.getSubString(1, length)</code>. El video es un <span class="kw">BLOB</span> que se extrae como arreglo de bytes con <code>blob.getBytes(1, length)</code>.</p>
+      </div>
+      <pre><code><span class="cmt-sql">-- Letra (CLOB):</span>
+<span class="kw-sql">SELECT</span> LETRA <span class="kw-sql">FROM</span> <span class="tbl-sql">CANCIONES</span> <span class="kw-sql">WHERE</span> ID_CANCION = <span class="param-sql">?</span>
+
+<span class="cmt-sql">-- Video (BLOB):</span>
+<span class="kw-sql">SELECT</span> VIDEO <span class="kw-sql">FROM</span> <span class="tbl-sql">CANCIONES</span> <span class="kw-sql">WHERE</span> ID_CANCION = <span class="param-sql">?</span></code></pre>
+      <div class="tags">
+        <span class="tag tag-select">SELECT</span>
+        <span class="tag tag-blob">CLOB / BLOB</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ PLAYLIST ═══════════════════════════════ -->
+<div class="section" id="sec-playlist">
+  <div class="section-header">
+    <div class="section-icon" style="background:rgba(106,160,247,0.15)">📋</div>
+    <div>
+      <h2>Playlists</h2>
+      <span class="dao-tag">CancionDAO.java → crearPlaylist()</span>
+    </div>
+  </div>
+
+  <div class="query-card">
+    <div class="query-header" onclick="toggle(this)">
+      <span class="q-num">Q-21</span>
+      <div class="query-title">
+        <strong>crearPlaylist(…) — Transacción completa de 4 pasos</strong>
+        <span>Genera ID, inserta playlist, escribe BLOB, vincula canciones en batch</span>
+      </div>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="query-body">
+      <div class="explain-block">
+        <p>Todo ocurre dentro de <span class="kw">con.setAutoCommit(false)</span> para garantizar consistencia. Si cualquier paso falla, <span class="kw">con.rollback()</span> deshace todo. Los 4 pasos:</p>
+      </div>
+      <div class="flow-diagram">
+        <span class="arrow">1 →</span> <span class="box">SELECT MAX → genera "PL001"</span><br>
+        <span class="arrow">2 →</span> <span class="box">INSERT INTO PLAYLISTS … EMPTY_BLOB()</span><br>
+        <span class="arrow">3 →</span> <span class="box">SELECT PORTADA FOR UPDATE → escribe imagen</span><br>
+        <span class="arrow">4 →</span> <span class="box">INSERT INTO USUARIOS_PLAYLISTS</span><br>
+        <span class="arrow">5 →</span> <span class="box">INSERT BATCH → PLAYLISTS_CANCIONES</span><br>
+        <span class="arrow">✓ →</span> <span class="label">con.commit()</span>
+      </div>
+      <pre><code><span class="cmt-sql">-- Paso 1: Generar ID</span>
+<span class="kw-sql">SELECT</span> <span class="fn-sql">NVL</span>(<span class="fn-sql">MAX</span>(<span class="fn-sql">TO_NUMBER</span>(<span class="fn-sql">SUBSTR</span>(ID_PLAYLIST,3))),0)+1 <span class="kw-sql">AS</span> NEXT_ID
+<span class="kw-sql">FROM</span> <span class="tbl-sql">PLAYLISTS</span>
+
+<span class="cmt-sql">-- Paso 2: Crear playlist</span>
+<span class="kw-sql">INSERT INTO</span> <span class="tbl-sql">PLAYLISTS</span>
+  (ID_PLAYLIST, NOMBRE, PORTADA, CREADOR, DESCRIPCION, NUMERODECANCIONES)
+<span class="kw-sql">VALUES</span> (<span class="param-sql">?</span>, <span class="param-sql">?</span>, <span class="fn-sql">EMPTY_BLOB()</span>, <span class="param-sql">?</span>, <span class="param-sql">?</span>, <span class="param-sql">?</span>)
+
+<span class="cmt-sql">-- Paso 4: Vincular usuario</span>
+<span class="kw-sql">INSERT INTO</span> <span class="tbl-sql">USUARIOS_PLAYLISTS</span> (ID_USUARIO, ID_PLAYLIST)
+<span class="kw-sql">VALUES</span> (<span class="param-sql">?</span>, <span class="param-sql">?</span>)
+
+<span class="cmt-sql">-- Paso 5: Insertar canciones en batch</span>
+<span class="kw-sql">INSERT INTO</span> <span class="tbl-sql">PLAYLISTS_CANCIONES</span> (ID_PLAYLIST, ID_CANCION)
+<span class="kw-sql">VALUES</span> (<span class="param-sql">?</span>, <span class="param-sql">?</span>)  <span class="cmt-sql">← ps.addBatch() × N → ps.executeBatch()</span></code></pre>
+      <div class="tags">
+        <span class="tag tag-insert">INSERT × 4</span>
+        <span class="tag tag-blob">BLOB</span>
+        <span class="tag tag-join">BATCH</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="query-card">
+    <div class="query-header" onclick="toggle(this)">
+      <span class="q-num">Q-22</span>
+      <div class="query-title">
+        <strong>obtenerPorPlaylist(idPlaylist)</strong>
+        <span>Lista las canciones de una playlist</span>
+      </div>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="query-body">
+      <div class="explain-block">
+        <p>Usa la tabla puente <span class="highlight">PLAYLISTS_CANCIONES</span> para filtrar y luego une con ARTISTAS para obtener el nombre.</p>
+      </div>
+      <pre><code><span class="kw-sql">FROM</span>  <span class="tbl-sql">CANCIONES</span>           C
+<span class="kw-sql">JOIN</span>  <span class="tbl-sql">PLAYLISTS_CANCIONES</span> PC <span class="kw-sql">ON</span> C.ID_CANCION  = PC.ID_CANCION
+<span class="kw-sql">JOIN</span>  <span class="tbl-sql">ARTISTAS_CANCIONES</span>  AC <span class="kw-sql">ON</span> C.ID_CANCION  = AC.ID_CANCION
+<span class="kw-sql">JOIN</span>  <span class="tbl-sql">ARTISTAS</span>            A  <span class="kw-sql">ON</span> AC.ID_ARTISTA = A.ID_ARTISTA
+<span class="kw-sql">WHERE</span> PC.ID_PLAYLIST = <span class="param-sql">?</span></code></pre>
+      <div class="tags">
+        <span class="tag tag-select">SELECT</span>
+        <span class="tag tag-join">JOIN ×4</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ HISTORIAL ═══════════════════════════════ -->
+<div class="section" id="sec-historial">
+  <div class="section-header">
+    <div class="section-icon" style="background:rgba(247,200,106,0.15)">⏱️</div>
+    <div>
+      <h2>HistorialDAO — Historial de reproducción</h2>
+      <span class="dao-tag">HistorialDAO.java</span>
+    </div>
+  </div>
+
+  <div class="query-card">
+    <div class="query-header" onclick="toggle(this)">
+      <span class="q-num">Q-23</span>
+      <div class="query-title">
+        <strong>obtenerOCrearHistorial(idUsuario)</strong>
+        <span>Busca historial existente o crea uno nuevo</span>
+      </div>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="query-body">
+      <div class="explain-block">
+        <p><span class="kw">FETCH FIRST 1 ROWS ONLY</span> es la sintaxis Oracle para el clásico <code>LIMIT 1</code>. Si no encuentra historial para el usuario, crea uno nuevo con un ID compuesto de <code>HIS_ + idUsuario + timestamp</code>.</p>
+      </div>
+      <pre><code><span class="cmt-sql">-- Buscar historial existente:</span>
+<span class="kw-sql">SELECT</span> ID_HISTORIAL <span class="kw-sql">FROM</span> <span class="tbl-sql">HISTORIAL</span>
+<span class="kw-sql">WHERE</span>  ID_USUARIO = <span class="param-sql">?</span>
+<span class="fn-sql">FETCH FIRST 1 ROWS ONLY</span>
+
+<span class="cmt-sql">-- Si no existe, crear uno:</span>
+<span class="kw-sql">INSERT INTO</span> <span class="tbl-sql">HISTORIAL</span> (ID_HISTORIAL, ID_USUARIO)
+<span class="kw-sql">VALUES</span> (<span class="param-sql">?</span>, <span class="param-sql">?</span>)</code></pre>
+      <div class="tags">
+        <span class="tag tag-select">SELECT</span>
+        <span class="tag tag-insert">INSERT</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="query-card">
+    <div class="query-header" onclick="toggle(this)">
+      <span class="q-num">Q-24</span>
+      <div class="query-title">
+        <strong>registrarEnHistorial(idUsuario, idCancion)</strong>
+        <span>Agrega una reproducción con SYSTIMESTAMP</span>
+      </div>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="query-body">
+      <div class="explain-block">
+        <p>Se llama cada vez que el usuario reproduce una canción. <span class="kw">SYSTIMESTAMP</span> registra la fecha y hora exacta de Oracle (con microsegundos), que luego sirve para ordenar el historial cronológicamente. Antes de insertar, verifica con Q-25 que no sea duplicado.</p>
+      </div>
+      <pre><code><span class="kw-sql">INSERT INTO</span> <span class="tbl-sql">HISTORIAL_CANCIONES</span>
+  (ID_HISTORIAL, ID_CANCION, FECHA_REPRODUCCION)
+<span class="kw-sql">VALUES</span>
+  (<span class="param-sql">?</span>, <span class="param-sql">?</span>, <span class="fn-sql">SYSTIMESTAMP</span>)</code></pre>
+      <div class="tags">
+        <span class="tag tag-insert">INSERT</span>
+        <span class="tag tag-join">SYSTIMESTAMP</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="query-card">
+    <div class="query-header" onclick="toggle(this)">
+      <span class="q-num">Q-25</span>
+      <div class="query-title">
+        <strong>yaExisteEnHistorial(idHistorial, idCancion)</strong>
+        <span>Verificación de duplicados con SELECT 1</span>
+      </div>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="query-body">
+      <div class="explain-block">
+        <p>El patrón <span class="kw">SELECT 1 FROM … WHERE …</span> es una forma eficiente de verificar existencia sin traer datos. Si el <code>ResultSet.next()</code> retorna true, el registro existe. El mismo patrón se usa para verificar Me Gusta (Q-28).</p>
+      </div>
+      <pre><code><span class="kw-sql">SELECT</span> 1 <span class="kw-sql">FROM</span> <span class="tbl-sql">HISTORIAL_CANCIONES</span>
+<span class="kw-sql">WHERE</span>  ID_HISTORIAL = <span class="param-sql">?</span>
+  <span class="kw-sql">AND</span>  ID_CANCION   = <span class="param-sql">?</span></code></pre>
+      <div class="tags">
+        <span class="tag tag-select">SELECT 1</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ ME GUSTA ═══════════════════════════════ -->
+<div class="section" id="sec-megusta">
+  <div class="section-header">
+    <div class="section-icon" style="background:rgba(247,106,143,0.15)">❤️</div>
+    <div>
+      <h2>HistorialDAO — Me Gusta</h2>
+      <span class="dao-tag">HistorialDAO.java</span>
+    </div>
+  </div>
+
+  <div class="query-card">
+    <div class="query-header" onclick="toggle(this)">
+      <span class="q-num">Q-26</span>
+      <div class="query-title">
+        <strong>agregarMeGusta(idUsuario, idCancion)</strong>
+        <span>Registra un favorito evitando duplicados</span>
+      </div>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="query-body">
+      <div class="explain-block">
+        <p>Flujo: busca o crea registro en <span class="highlight">MEGUSTAS</span>, luego verifica que no exista ya en <span class="highlight">MEGUSTAS_CANCIONES</span>, y finalmente inserta. Retorna <code>true</code> si se agregó o <code>false</code> si ya era favorita.</p>
+      </div>
+      <pre><code><span class="cmt-sql">-- Buscar ID de me-gusta del usuario:</span>
+<span class="kw-sql">SELECT</span> ID_MEGUSTAS <span class="kw-sql">FROM</span> <span class="tbl-sql">MEGUSTAS</span>
+<span class="kw-sql">WHERE</span>  ID_USUARIO = <span class="param-sql">?</span>
+<span class="fn-sql">FETCH FIRST 1 ROWS ONLY</span>
+
+<span class="cmt-sql">-- Si no existe, crear registro:</span>
+<span class="kw-sql">INSERT INTO</span> <span class="tbl-sql">MEGUSTAS</span> (ID_MEGUSTAS, ID_USUARIO)
+<span class="kw-sql">VALUES</span> (<span class="param-sql">?</span>, <span class="param-sql">?</span>)
+
+<span class="cmt-sql">-- Insertar relación favorito-canción:</span>
+<span class="kw-sql">INSERT INTO</span> <span class="tbl-sql">MEGUSTAS_CANCIONES</span> (ID_MEGUSTAS, ID_CANCION)
+<span class="kw-sql">VALUES</span> (<span class="param-sql">?</span>, <span class="param-sql">?</span>)</code></pre>
+      <div class="tags">
+        <span class="tag tag-insert">INSERT</span>
+        <span class="tag tag-select">SELECT</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ RESUMEN ═══════════════════════════════ -->
+<div class="section" id="sec-resumen">
+  <div class="section-header">
+    <div class="section-icon" style="background:rgba(200,106,247,0.15)">📊</div>
+    <div>
+      <h2>ResumenDAO — Resumen del usuario</h2>
+      <span class="dao-tag">ResumenDAO.java</span>
+    </div>
+  </div>
+
+  <div class="query-card">
+    <div class="query-header" onclick="toggle(this)">
+      <span class="q-num">Q-27</span>
+      <div class="query-title">
+        <strong>obtenerUltimoDeUsuario(idUsuario)</strong>
+        <span>Trae el resumen semanal más reciente del usuario</span>
+      </div>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="query-body">
+      <div class="explain-block">
+        <p>Ordena todos los resúmenes del usuario por fecha descendente y toma solo el primero con <span class="kw">FETCH FIRST 1 ROWS ONLY</span>.</p>
+      </div>
+      <pre><code><span class="kw-sql">SELECT</span> R.ID_RESUMEN, R.FECHA, R.GENEROPRINCIPAL,
+       R.CANCIONESPRINCIPALES, R.ARTISTAPRINCIPAL,
+       R.EMOCION, R.ID_USUARIO, R.ID_HISTORIAL
+<span class="kw-sql">FROM</span>   <span class="tbl-sql">RESUMENES_SEMANALES</span> R
+<span class="kw-sql">WHERE</span>  R.ID_USUARIO = <span class="param-sql">?</span>
+<span class="kw-sql">ORDER BY</span> R.FECHA <span class="kw-sql">DESC</span>
+<span class="fn-sql">FETCH FIRST 1 ROWS ONLY</span></code></pre>
+      <div class="tags">
+        <span class="tag tag-select">SELECT</span>
+        <span class="tag tag-join">FETCH FIRST</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="query-card">
+    <div class="query-header" onclick="toggle(this)">
+      <span class="q-num">Q-28</span>
+      <div class="query-title">
+        <strong>obtenerGenerosMasEscuchadosConFecha(…)</strong>
+        <span>Géneros más escuchados con filtro de rango de fechas opcional</span>
+      </div>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="query-body">
+      <div class="explain-block">
+        <p>Hay dos variantes: con y sin rango de fechas. Cuando se pasan fechas, se une con <span class="highlight">RESUMENES_SEMANALES</span> y se filtra con <span class="kw">BETWEEN</span>. Agrupa por género y ordena por total descendente para mostrar el más escuchado primero.</p>
+      </div>
+      <pre><code><span class="cmt-sql">-- Con filtro de fechas:</span>
+<span class="kw-sql">SELECT</span> C.GENERO, <span class="fn-sql">COUNT</span>(C.ID_CANCION) <span class="kw-sql">AS</span> TOTAL
+<span class="kw-sql">FROM</span>  <span class="tbl-sql">CANCIONES</span>           C
+<span class="kw-sql">JOIN</span>  <span class="tbl-sql">HISTORIAL_CANCIONES</span> HC <span class="kw-sql">ON</span> C.ID_CANCION   = HC.ID_CANCION
+<span class="kw-sql">JOIN</span>  <span class="tbl-sql">HISTORIAL</span>           H  <span class="kw-sql">ON</span> HC.ID_HISTORIAL = H.ID_HISTORIAL
+<span class="kw-sql">JOIN</span>  <span class="tbl-sql">RESUMENES_SEMANALES</span> RS <span class="kw-sql">ON</span> RS.ID_HISTORIAL = H.ID_HISTORIAL
+<span class="kw-sql">WHERE</span> H.ID_USUARIO = <span class="param-sql">?</span>
+  <span class="kw-sql">AND</span>  RS.FECHA <span class="kw-sql">BETWEEN</span> <span class="param-sql">?</span> <span class="kw-sql">AND</span> <span class="param-sql">?</span>
+<span class="kw-sql">GROUP BY</span> C.GENERO
+<span class="kw-sql">ORDER BY</span> TOTAL <span class="kw-sql">DESC</span></code></pre>
+      <div class="tags">
+        <span class="tag tag-select">SELECT</span>
+        <span class="tag tag-aggregate">GROUP BY</span>
+        <span class="tag tag-join">JOIN ×4 / BETWEEN</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="query-card">
+    <div class="query-header" onclick="toggle(this)">
+      <span class="q-num">Q-29</span>
+      <div class="query-title">
+        <strong>obtenerCancionesEnRango(idUsuario, desde, hasta)</strong>
+        <span>Canciones únicas escuchadas en un período — subconsulta con DISTINCT</span>
+      </div>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="query-body">
+      <div class="explain-block">
+        <p>Usa una subconsulta para obtener canciones únicas con <span class="kw">DISTINCT</span>, y luego hace un JOIN adicional con CANCIONES (alias C2) para obtener la portada (BLOB). La portada no se incluye en el DISTINCT para no complicar la deduplicación.</p>
+      </div>
+      <pre><code><span class="kw-sql">SELECT</span> sub.*, C2.PORTADA
+<span class="kw-sql">FROM</span> (
+  <span class="kw-sql">SELECT DISTINCT</span> C.ID_CANCION, C.NOMBRE, ...
+  <span class="kw-sql">FROM</span>  <span class="tbl-sql">CANCIONES C</span>
+  <span class="kw-sql">JOIN</span>  ... <span class="cmt-sql">-- cadena de JOINs hasta RESUMENES_SEMANALES</span>
+  <span class="kw-sql">WHERE</span> H.ID_USUARIO = <span class="param-sql">?</span>
+    <span class="kw-sql">AND</span>  RS.FECHA <span class="kw-sql">BETWEEN</span> <span class="param-sql">?</span> <span class="kw-sql">AND</span> <span class="param-sql">?</span>
+) sub
+<span class="kw-sql">JOIN</span> <span class="tbl-sql">CANCIONES</span> C2 <span class="kw-sql">ON</span> C2.ID_CANCION = sub.ID_CANCION
+<span class="kw-sql">ORDER BY</span> <span class="fn-sql">UPPER</span>(sub.NOMBRE)</code></pre>
+      <div class="tags">
+        <span class="tag tag-subquery">Subquery</span>
+        <span class="tag tag-select">DISTINCT</span>
+        <span class="tag tag-join">JOIN ×6</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="query-card">
+    <div class="query-header" onclick="toggle(this)">
+      <span class="q-num">Q-30</span>
+      <div class="query-title">
+        <strong>obtenerHistorialGeneral()</strong>
+        <span>Historial global deduplicado con ROW_NUMBER()</span>
+      </div>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="query-body">
+      <div class="explain-block">
+        <p>Similar a Q-17 pero sin filtrar por usuario. Usa <span class="kw">ROW_NUMBER() OVER (PARTITION BY C.ID_CANCION)</span> para numerar duplicados de cada canción y luego filtra <code>RN = 1</code> para obtener una sola aparición por canción.</p>
+      </div>
+      <pre><code><span class="kw-sql">SELECT</span> * <span class="kw-sql">FROM</span> (
+  <span class="kw-sql">SELECT</span> C.*, A.NOMBRE <span class="kw-sql">AS</span> ARTISTA,
+         <span class="fn-sql">ROW_NUMBER</span>()
+           <span class="kw-sql">OVER</span> (<span class="kw-sql">PARTITION BY</span> C.ID_CANCION
+                 <span class="kw-sql">ORDER BY</span> C.ID_CANCION) <span class="kw-sql">AS</span> RN
+  <span class="kw-sql">FROM</span> <span class="tbl-sql">CANCIONES C</span>
+  <span class="kw-sql">JOIN</span> <span class="tbl-sql">HISTORIAL_CANCIONES</span> HC ...
+  <span class="kw-sql">JOIN</span> <span class="tbl-sql">ARTISTAS</span> A ...
+)
+<span class="kw-sql">WHERE</span> RN = 1
+<span class="kw-sql">ORDER BY</span> <span class="fn-sql">UPPER</span>(NOMBRE)</code></pre>
+      <div class="tags">
+        <span class="tag tag-window">ROW_NUMBER()</span>
+        <span class="tag tag-subquery">Subquery</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ GLOBAL ═══════════════════════════════ -->
+<div class="section" id="sec-global">
+  <div class="section-header">
+    <div class="section-icon" style="background:rgba(106,247,200,0.15)">🌐</div>
+    <div>
+      <h2>ResumenDAO — Resumen Global</h2>
+      <span class="dao-tag">ResumenDAO.java</span>
+    </div>
+  </div>
+
+  <div class="query-card">
+    <div class="query-header" onclick="toggle(this)">
+      <span class="q-num">Q-31</span>
+      <div class="query-title">
+        <strong>obtenerGenerosMasEscuchadosGlobal(desde, hasta)</strong>
+        <span>Géneros más populares entre TODOS los usuarios</span>
+      </div>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="query-body">
+      <div class="explain-block">
+        <p>Igual que Q-28 pero sin filtrar por <code>ID_USUARIO</code>. Cuando se pasan fechas, se une a RESUMENES_SEMANALES y filtra con BETWEEN. Sin fechas, cuenta todo el historial global. El código elige dinámicamente cuál SQL ejecutar.</p>
+      </div>
+      <pre><code><span class="cmt-sql">-- Sin filtro (todos los tiempos):</span>
+<span class="kw-sql">SELECT</span> C.GENERO, <span class="fn-sql">COUNT</span>(C.ID_CANCION) <span class="kw-sql">AS</span> TOTAL
+<span class="kw-sql">FROM</span>  <span class="tbl-sql">CANCIONES</span> C
+<span class="kw-sql">JOIN</span>  <span class="tbl-sql">HISTORIAL_CANCIONES</span> HC ...
+<span class="kw-sql">JOIN</span>  <span class="tbl-sql">HISTORIAL</span> H ...
+<span class="kw-sql">GROUP BY</span> C.GENERO <span class="kw-sql">ORDER BY</span> TOTAL <span class="kw-sql">DESC</span>
+
+<span class="cmt-sql">-- Con filtro de fechas: + JOIN RESUMENES_SEMANALES</span>
+<span class="cmt-sql">-- WHERE RS.FECHA BETWEEN ? AND ?</span></code></pre>
+      <div class="tags">
+        <span class="tag tag-select">SELECT</span>
+        <span class="tag tag-aggregate">GROUP BY / COUNT</span>
+        <span class="tag tag-join">BETWEEN</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="query-card">
+    <div class="query-header" onclick="toggle(this)">
+      <span class="q-num">Q-32</span>
+      <div class="query-title">
+        <strong>obtenerPlaylistsDeUsuario(idUsuario)</strong>
+        <span>Playlists del usuario a través de la tabla de relación</span>
+      </div>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="query-body">
+      <div class="explain-block">
+        <p>Une <span class="highlight">PLAYLISTS</span> con <span class="highlight">USUARIOS_PLAYLISTS</span> para traer solo las playlists del usuario logueado. Retorna ID y nombre para mostrarlas en el Sidebar.</p>
+      </div>
+      <pre><code><span class="kw-sql">SELECT</span> P.ID_PLAYLIST, P.NOMBRE
+<span class="kw-sql">FROM</span>  <span class="tbl-sql">PLAYLISTS</span>          P
+<span class="kw-sql">JOIN</span>  <span class="tbl-sql">USUARIOS_PLAYLISTS</span> UP <span class="kw-sql">ON</span> P.ID_PLAYLIST = UP.ID_PLAYLIST
+<span class="kw-sql">WHERE</span> UP.ID_USUARIO = <span class="param-sql">?</span>
+<span class="kw-sql">ORDER BY</span> P.NOMBRE</code></pre>
+      <div class="tags">
+        <span class="tag tag-select">SELECT</span>
+        <span class="tag tag-join">JOIN</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+<!-- END SECTIONS -->
+
+</main>
+</div>
+
+<script>
+function toggle(header) {
+  const card = header.parentElement;
+  card.classList.toggle('open');
+}
+// Abrir todas las "open" en el arranque ya están abiertas por clase
+</script>
+</body>
+</html>
