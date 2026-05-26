@@ -1,1 +1,0 @@
-# Querys-Fundamentos-Base-de-Datos
